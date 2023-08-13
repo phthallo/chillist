@@ -35,3 +35,8 @@ class Interactive():
         if self.rect.collidepoint(pygame.mouse.get_pos()): 
             mouse_pos = pygame.mouse.get_pos()
             screen.blit(self.tooltip, (mouse_pos[0]+16, mouse_pos[1]))
+
+class Window():
+    def __init__(self, screen, title, colour=(251, 239, 210), border=(148,133,123), x=128, y=72, w=768, h=432):
+        self.rect = pygame.draw.rect(screen, colour, [x, y, w, h])
+        self.border = pygame.draw.rect(screen, border, [x, y, w, h], width=3)
