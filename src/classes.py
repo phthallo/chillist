@@ -1,4 +1,5 @@
 import pygame
+import random
 pygame.init()
 #general
 font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 30)
@@ -11,10 +12,9 @@ class Backdrop():
         screen.blit(pygame.image.load(img), (x,y))
 
 class Button():
-    def __init__(self, screen, img="", x=0, y=0):
+    def __init__(self, screen, img, x=0, y=0):
         """
         Initialises the button. Accepts button image and coordinate location [default is (0,0)]
-        For now, the img is optional while I try to figure out how to generate buttons better.
         """
         self.rect = pygame.image.load(img).get_rect(topleft = (x,y))
         screen.blit(pygame.image.load(img), (x,y))
@@ -37,6 +37,21 @@ class Interactive():
             screen.blit(self.tooltip, (mouse_pos[0]+16, mouse_pos[1]))
 
 class Window():
-    def __init__(self, screen, title, colour=(251, 239, 210), border=(148,133,123), x=128, y=72, w=768, h=432):
-        self.rect = pygame.draw.rect(screen, colour, [x, y, w, h])
-        self.border = pygame.draw.rect(screen, border, [x, y, w, h], width=3)
+    def __init__(self, screen, title, x=128, y=72):
+        screen.blit(pygame.image.load("src/img/window.png"), (x,y))
+        font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
+        self.title = font.render(title, False, (255, 255, 255))
+        screen.blit(self.title, (158, 95))
+
+def play(playlist):
+    song = random.choice(playlist)
+    if pygame.mixer.music.get_busy:
+        pygame.mixer.music.queue(song[0])
+    else:
+        pygame.mixer.music.load(song[0])
+        pygame.mixer.music.play()
+def pause():
+    pygame.mixer.music.pause()
+def unpause():
+    pygame.mixer.music.unpause()
+
