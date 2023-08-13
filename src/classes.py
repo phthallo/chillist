@@ -1,5 +1,4 @@
 import pygame
-import random
 pygame.init()
 #general
 font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 30)
@@ -42,16 +41,4 @@ class Window():
         font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
         self.title = font.render(title, False, (255, 255, 255))
         screen.blit(self.title, (158, 95))
-
-def play(playlist):
-    song = random.choice(playlist)
-    if pygame.mixer.music.get_busy:
-        pygame.mixer.music.queue(song[0])
-    else:
-        pygame.mixer.music.load(song[0])
-        pygame.mixer.music.play()
-def pause():
-    pygame.mixer.music.pause()
-def unpause():
-    pygame.mixer.music.unpause()
 
