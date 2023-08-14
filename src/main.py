@@ -84,7 +84,8 @@ while not done:
                 else:
                     control = Button(screen,"src/img/pause.png", x=405, y=190)
                     currentlyplayins = font.render(f"Now playing: {currentlyplaying[1][:-4]}", False, (147, 133, 123), (251, 238, 208))
-                    screen.blit(currentlyplayins, (296, 436))
+                    currentlyplayins_rect = currentlyplayins.get_rect(center=(520, 460)) #what this does is set the centre of the "now playing" text to the actual centre of the popup window
+                    screen.blit(currentlyplayins, currentlyplayins_rect) # meaning that no matter how long the text is, it'll always be aligned to the centre.
                 if keys[pygame.K_SPACE] or event.type == pygame.MOUSEBUTTONDOWN and closeButton.rect.collidepoint(pygame.mouse.get_pos()):
                     vinylWindow_open = False
     ##### Drawing code #####
