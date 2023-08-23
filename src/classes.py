@@ -3,10 +3,11 @@ pygame.init()
 #general
 font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 30)
 class Backdrop():
-    def __init__(self, screen, img, x=0, y=0):
+    def __init__(self, screen, img, x=0, y=0, ):
         """
         Initialises the backdrop. Accepts backdrop image and coordinate location [default is (0,0)]
         """
+
         self.rect = pygame.image.load(img).get_rect(topleft = (x,y))
         screen.blit(pygame.image.load(img), (x,y))
 

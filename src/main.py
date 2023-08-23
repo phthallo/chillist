@@ -1,6 +1,7 @@
 import pygame
 import os
 import random
+from time import localtime, strftime
 from classes import Backdrop, Button, Interactive, Window
 pygame.init()
 pygame.mixer.init()
@@ -20,19 +21,34 @@ screen_rect = screen.get_rect()
 pygame.display.set_caption("Chilist")
 font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
 done = False              
-scene = 1
+scene = 0
 clock = pygame.time.Clock()
+
+##### EVENTS #####
 NEXT = pygame.USEREVENT + 1
 vinylWindow_open = False
 firstPlay = False
 play = False
+
+##### OBKECTS #####
+# make playlist out of existing mp3 files
 playlist = []
 for filename in os.listdir(os.getcwd()+"\\src\\mus"):
     file = os.path.join(os.getcwd()+"\\src\\mus", filename)
     # checking if it is a file and that it's a music file
     if file.lower().endswith(('.mp3', '.wav', '.ogg')):
         playlist.append((file, filename))
-playing = 0
+# collate date and time using os
+attributes = [os.getlogin(), #the username
+              strftime("%B", localtime()), #the current month
+              strftime("%A", localtime()), #the day name (e.g monday tuesday)
+              strftime("%d", localtime()), #the day (e.g 23rd)
+              (strftime("%H", localtime()), #tuple containing the hour and minutes in 24 hour
+              strftime("%M", localtime()))] #time format. e.g (13,17) meaning 1:17pm
+boundaries = [(0,12, "morning"), (12, 17, "afternoon"), (17, 20, "evening"), (21, 24, "night")] # these are the defined hour boundaries in 24 hour time for what constitutes  day, afternoon, evening or  night (imo)
+for boundary in boundaries: #
+    if boundary[0] < int(attributes[4][0]) < boundary[1]:
+        attributes.append(boundary[2])
 
 ##### Main Program Loop #####
 while not done:
@@ -46,6 +62,14 @@ while not done:
             x, y = pygame.mouse.get_pos()
             print(x,y)
         keys = pygame.key.get_pressed()
+        if scene == 0: 
+            backdrop = Backdrop(screen, "src/img/entrywipNOTEXT.png")
+            attributes_text = font.render(f"Good {attributes[5]}, {attributes[0]}. It is {attributes[2]}, {attributes[1]} {attributes[3]}", False, (147, 133, 123), (251, 238, 208))
+            attributes_rect = attributes_text.get_rect(center=(520, 200)) #what this does is set the centre of the "now playing" text to the actual centre of the popup window
+            screen.blit(attributes_text, attributes_rect)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                scene = 1
+    
         if scene == 1:
             backdrop = Backdrop(screen, "src/img/roomlinesSUNRISE.png")
             bountiesPoster = Interactive(screen, "[!] A bounties poster.", x=46, y=39, w=190, h=238)
@@ -56,6 +80,7 @@ while not done:
                 if vinylPlayer.rect.collidepoint(pygame.mouse.get_pos()) and vinylWindow_open == False: 
                     vinylWindow = Window(screen, "https://music.com/lofi")
                     vinylWindow_open = True
+
             if vinylWindow_open == True:
                 vinylWindow = Window(screen, "https://music.com/lofi")
                 control = Button(screen, "src/img/play.png", x=400, y=190)
@@ -78,14 +103,13 @@ while not done:
                     currentlyplaying = random.choice(playlist)
                     pygame.mixer.music.load(currentlyplaying[0])
                     pygame.mixer.music.play()
-
                 if play == False:
                     control = Button(screen,"src/img/play.png", x=405, y=190)
                 else:
                     control = Button(screen,"src/img/pause.png", x=405, y=190)
-                    currentlyplayins = font.render(f"Now playing: {currentlyplaying[1][:-4]}", False, (147, 133, 123), (251, 238, 208))
-                    currentlyplayins_rect = currentlyplayins.get_rect(center=(520, 460)) #what this does is set the centre of the "now playing" text to the actual centre of the popup window
-                    screen.blit(currentlyplayins, currentlyplayins_rect) # meaning that no matter how long the text is, it'll always be aligned to the centre.
+                    currentlyplaying_text = font.render(f"Now playing: {currentlyplaying[1][:-4]}", False, (147, 133, 123), (251, 238, 208))
+                    currentlyplayins_rect = currentlyplaying_text.get_rect(center=(520, 460)) #what this does is set the centre of the "now playing" text to the actual centre of the popup window
+                    screen.blit(currentlyplaying_text, currentlyplayins_rect) # meaning that no matter how long the text is, it'll always be aligned to the centre.
                 if keys[pygame.K_SPACE] or event.type == pygame.MOUSEBUTTONDOWN and closeButton.rect.collidepoint(pygame.mouse.get_pos()):
                     vinylWindow_open = False
     ##### Drawing code #####
