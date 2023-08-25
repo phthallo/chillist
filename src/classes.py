@@ -43,3 +43,18 @@ class Window():
         self.title = font.render(title, False, (255, 255, 255))
         screen.blit(self.title, (158, 95))
 
+def multiline(screen, lines, font, pos, colour=(0,0,0), x=0, y=0, w=2): 
+    """
+    Takes a list containing strings and creates a surface where all strings are blitted one below the other.
+    It's possible to specify the position of the text (e.g whether the text should be centred/topleft).
+    Finally, the width between lines is also adjustable. 
+    """
+    label = []
+    for line in lines: 
+        label.append(font.render(line, True, colour))
+    if pos == "center":
+        for line in range(len(label)):
+            screen.blit(label[line],(label[line]).get_rect(center=(x,y+(line*20)+(w*line))))
+    elif pos == "topleft":
+        for line in range(len(label)):
+            screen.blit(label[line],(label[line]).get_rect(topleft=(x,y+(line*20)+(w*line))))

@@ -3,6 +3,7 @@ import os
 import random
 from time import localtime, strftime
 from classes import Backdrop, Button, Interactive, Window
+from classes import multiline
 pygame.init()
 pygame.mixer.init()
 
@@ -20,6 +21,7 @@ screen = pygame.display.set_mode(size)
 screen_rect = screen.get_rect()
 pygame.display.set_caption("Chilist")
 font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
+title_font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 30)
 done = False              
 scene = 0
 clock = pygame.time.Clock()
@@ -56,6 +58,8 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+        
+
         ##### Logic #####
         # This code retrieves coordinates of mouse clicks, which I need to test the colliders.
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -64,9 +68,8 @@ while not done:
         keys = pygame.key.get_pressed()
         if scene == 0: 
             backdrop = Backdrop(screen, "src/img/entrywipNOTEXT.png")
-            attributes_text = font.render(f"Good {attributes[5]}, {attributes[0]}. It is {attributes[2]}, {attributes[1]} {attributes[3]}", False, (147, 133, 123), (251, 238, 208))
-            attributes_rect = attributes_text.get_rect(center=(520, 200)) #what this does is set the centre of the "now playing" text to the actual centre of the popup window
-            screen.blit(attributes_text, attributes_rect)
+            attributes_text = font.render(f". ", False, (0, 0, 0))
+            multiline(screen, [f"Good {attributes[5]}, {attributes[0]}.", f"It is {attributes[2]}, {attributes[1]} {attributes[3]}"], title_font, "center", x=520, y=180, w=20)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 scene = 1
     
