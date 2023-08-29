@@ -28,11 +28,9 @@ clock = pygame.time.Clock()
 
 ##### EVENTS #####
 NEXT = pygame.USEREVENT + 1
-vinylWindow_open = False
-firstPlay = False
-play = False
+vinylWindow_open, firstPlay, play = False, False, False
 
-##### OBKECTS #####
+##### OBJECTS #####
 # make playlist out of existing mp3 files
 playlist = []
 for filename in os.listdir(os.getcwd()+"\\src\\mus"):
@@ -41,25 +39,20 @@ for filename in os.listdir(os.getcwd()+"\\src\\mus"):
     if file.lower().endswith(('.mp3', '.wav', '.ogg')):
         playlist.append((file, filename))
 # collate date and time using os
-attributes = [os.getlogin(), #the username
-              strftime("%B", localtime()), #the current month
-              strftime("%A", localtime()), #the day name (e.g monday tuesday)
-              strftime("%d", localtime()), #the day (e.g 23rd)
-              (strftime("%H", localtime()), #tuple containing the hour and minutes in 24 hour
-              strftime("%M", localtime()))] #time format. e.g (13,17) meaning 1:17pm
+attributes = {"username": os.getlogin(),
+              "month": strftime("%B", localtime()),
+              "day_name": strftime("%A", localtime()),
+              "day_date": strftime("%d", localtime()),
+              "time":  (strftime("%H", localtime()), strftime("%M", localtime()))
+              }
 boundaries = [(0,12, "morning"), (12, 17, "afternoon"), (17, 20, "evening"), (21, 24, "night")] # these are the defined hour boundaries in 24 hour time for what constitutes  day, afternoon, evening or  night (imo)
-for boundary in boundaries: #
-    if boundary[0] < int(attributes[4][0]) < boundary[1]:
-        attributes.append(boundary[2])
-
+attributes["time_period"] = [boundary[2] for boundary in boundaries if boundary[0] < int(attributes["time"][0]) < boundary[1]][0]
 ##### Main Program Loop #####
 while not done:
     ##### Events Loop #####
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        
-
         ##### Logic #####
         # This code retrieves coordinates of mouse clicks, which I need to test the colliders.
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -68,8 +61,7 @@ while not done:
         keys = pygame.key.get_pressed()
         if scene == 0: 
             backdrop = Backdrop(screen, "src/img/entrywipNOTEXT.png")
-            attributes_text = font.render(f". ", False, (0, 0, 0))
-            multiline(screen, [f"Good {attributes[5]}, {attributes[0]}.", f"It is {attributes[2]}, {attributes[1]} {attributes[3]}"], title_font, "center", x=520, y=180, w=20)
+            multiline(screen, [f"Good {attributes['time_period']}, {attributes['username']}.", f"It is {attributes['day_name']}, {attributes['month']} {attributes['day_date']}"], title_font, "center", x=520, y=180, w=20)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 scene = 1
     
@@ -81,7 +73,6 @@ while not done:
             closeButton = Interactive(screen,"", x=840, y=75, w=54, h=50)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if vinylPlayer.rect.collidepoint(pygame.mouse.get_pos()) and vinylWindow_open == False: 
-                    vinylWindow = Window(screen, "https://music.com/lofi")
                     vinylWindow_open = True
 
             if vinylWindow_open == True:

@@ -46,8 +46,8 @@ class Window():
 def multiline(screen, lines, font, pos, colour=(0,0,0), x=0, y=0, w=2): 
     """
     Takes a list containing strings and creates a surface where all strings are blitted one below the other.
-    It's possible to specify the position of the text (e.g whether the text should be centred/topleft).
-    Finally, the width between lines is also adjustable. 
+    Currently supports custom line spacing, font object (new font sizes need to be specified external of function use) and position (only top-left and center right now)
+
     """
     label = []
     for line in lines: 
