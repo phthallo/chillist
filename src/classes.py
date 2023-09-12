@@ -1,7 +1,9 @@
 import pygame
 pygame.init()
+import json
 #general
 font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 30)
+smallfont = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
 class Backdrop():
     def __init__(self, screen, img, x=0, y=0, ):
         """
@@ -20,7 +22,7 @@ class Button():
         screen.blit(pygame.image.load(img), (x,y))
 
 class Interactive():
-    def __init__(self, screen, tooltip, img="", colour=(148,133,123), x=0, y=0, w=50, h=50):
+    def __init__(self, screen, tooltip, img="", font=font, colour=(148,133,123), x=0, y=0, w=50, h=50):
         """
         Initialises the interactive class, which can refer to either a placed image or an invisible rect.
         This is done considering that the pre-existing interactives are part of the background image,
@@ -37,9 +39,10 @@ class Interactive():
             screen.blit(self.tooltip, (mouse_pos[0]+16, mouse_pos[1]))
 
 class Window():
-    def __init__(self, screen, title, x=128, y=72):
-        screen.blit(pygame.image.load("src/img/window.png"), (x,y))
-        font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
+    def __init__(self, screen, title, size="large", x=128, y=72):
+        if size == "large":
+            screen.blit(pygame.image.load("src/img/window.png"), (x,y))
+            font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
         self.title = font.render(title, False, (255, 255, 255))
         screen.blit(self.title, (158, 95))
 
@@ -58,3 +61,23 @@ def multiline(screen, lines, font, pos, colour=(0,0,0), x=0, y=0, w=2):
     elif pos == "topleft":
         for line in range(len(label)):
             screen.blit(label[line],(label[line]).get_rect(topleft=(x,y+(line*20)+(w*line))))
+
+def checkClick(item, mouse_pos, event_list):
+    for event in event_list:
+        if event.type == pygame.MOUSEBUTTONDOWN and item.rect.collidepoint(mouse_pos):
+            return True
+        
+
+def tooltip(screen, img, font, tooltip, colour=(148,133,123), x=0,y=0):
+    rect = pygame.image.load(img).get_rect(center = (x,y))
+    screen.blit(pygame.image.load(img), rect)
+    tooltip= font.render(tooltip, False, (255, 255, 255), colour)
+    if rect.collidepoint(pygame.mouse.get_pos()): 
+        mouse_pos = pygame.mouse.get_pos()
+        screen.blit(tooltip, (mouse_pos[0]+16, mouse_pos[1]))
+
+def dump(settings):
+    with open('src/settings.json', "w") as json_file: 
+        json.dump(
+            settings, json_file, indent=4)
+        json_file.close()
