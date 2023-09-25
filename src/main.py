@@ -23,14 +23,15 @@ screen_rect = screen.get_rect()
 pygame.display.set_caption("Chilist")
 font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
 task_font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 20)
-title_font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 30)
+title_font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 25)
+pygame.display.set_icon(pygame.image.load(r"src\img\favicon.png"))
 done = False              
 scene = 0
 clock = pygame.time.Clock()
 
 ##### EVENTS #####
 NEXT = pygame.USEREVENT + 1
-vinylWindow_open, calendar_open, firstPlay, play, placed = False, False, False, False, False
+vinylWindow_open, calendar_open, todoTimer_open, firstPlay, play, placed = False, False, False, False, False, False
 
 ##### OBJECTS #####
 # make playlist out of existing mp3 files
@@ -48,8 +49,7 @@ attributes = {"username": os.getlogin(),
               "time":  (strftime("%H", localtime()), strftime("%M", localtime()))
               }
 boundaries = [(0,12, "morning"), (12, 17, "afternoon"), (17, 20, "evening"), (20, 24, "night")] # these are the defined hour boundaries in 24 hour time for what constitutes  day, afternoon, evening or  night (imo)
-attributes["time_period"] = [boundary[2] for boundary in boundaries if boundary[0] < int(attributes["time"][0]) < boundary[1]][0]
-
+attributes["time_period"] = [boundary[2] for boundary in boundaries if boundary[0] <= int(attributes["time"][0]) < boundary[1]][0]
 
 textinput = pygame_textinput.TextInputVisualizer(font_object=font, font_color=(255,255,255), cursor_color=(255,255,255))
 
@@ -69,23 +69,26 @@ while not done:
     if scene == 0: 
         if attributes["time_period"] == "afternoon" or attributes["time_period"] == "evening":
             backdrop = Backdrop(screen, "src/img/afternoon.png")
+            multiline(screen, [f"Good {attributes['time_period']}, {attributes['username']}.", f"It is {attributes['day_name']}, {attributes['month']} {attributes['day_date']}"], title_font, "center", colour=(22,9,55), x=520, y=180, w=20)
         else: 
             backdrop = Backdrop(screen, f"src/img/{attributes['time_period']}.png")
-        multiline(screen, [f"Good {attributes['time_period']}, {attributes['username']}.", f"It is {attributes['day_name']}, {attributes['month']} {attributes['day_date']}"], title_font, "center", x=520, y=180, w=20)
+            multiline(screen, [f"Good {attributes['time_period']}, {attributes['username']}.", f"It is {attributes['day_name']}, {attributes['month']} {attributes['day_date']}"], title_font, "center", x=520, y=180, w=20)
         if event.type == pygame.MOUSEBUTTONDOWN:
             scene = 1
     
     elif scene == 1:
         backdrop = Backdrop(screen, "src/img/roomlinesSUNRISE.png")
-        bountiesPoster = Interactive(screen, "[!] A bounties poster.", x=46, y=39, w=190, h=238)
+        todoTimer = Interactive(screen, "[!] A timer.", x=46, y=39, w=190, h=238)
         vinylPlayer = Interactive(screen, "[!] A vinyl player.", x=294, y=261, w=152, h=158)
         calendar = Interactive(screen,"[!] A calendar.", x=327, y=38, w=221, h=178)
         closeButton = Interactive(screen,"", x=840, y=75, w=54, h=50)
-        if vinylWindow_open == False and calendar_open == False: 
+        if vinylWindow_open == False and calendar_open == False and todoTimer_open == False: 
             if checkClick(vinylPlayer, pygame.mouse.get_pos(), event_list):
                 vinylWindow_open = True
             if checkClick(calendar, pygame.mouse.get_pos(), event_list):
                 calendar_open = True
+            if checkClick(todoTimer, pygame.mouse.get_pos(), event_list):
+                todoTimer_open = True
 
         if vinylWindow_open == True:
             vinylWindow = Window(screen, "https://music.com/lofi")
@@ -147,8 +150,15 @@ while not done:
 
             if checkClick(trashBin, pygame.mouse.get_pos(), event_list):
                 stickers = []
+        elif todoTimer_open == True:
+            todoTimerWindow = Window(screen, "https://todolist.com/pomodorotimer")
+            todolayout = Interactive(screen, "", img="src/img/timermockup.png", x=130, y=130)
+            if stickers:
+                multiline(screen, [i["desc"] if len(i["desc"]) < 19 else i["desc"][:16]+"..." for i in stickers[:6]], title_font, "topleft", colour=(202, 182, 169), x=625, y=230, w=20)
+            else: 
+                multiline(screen, ["No tasks! :)", "Try adding some using", "the Eisenhower matrix."], task_font, "topleft", colour=(202, 182, 169), x=625, y=230, w=10)
         if checkClick(closeButton, pygame.mouse.get_pos(), event_list):
-            calendar_open, vinylWindow_open = False, False
+            calendar_open, vinylWindow_open, todoTimer_open = False, False, False
 
     ##### Drawing code #####
     pygame.display.flip()
