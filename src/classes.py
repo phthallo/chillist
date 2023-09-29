@@ -1,6 +1,7 @@
 import pygame
 pygame.init()
 import json
+import math
 #general
 font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 30)
 smallfont = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
@@ -46,6 +47,18 @@ class Window():
         self.title = font.render(title, False, (255, 255, 255))
         screen.blit(self.title, (158, 95))
 
+class pomoTimer():
+    def __init__(self, screen, pos=(100,100), radius = 110, width = 75, ring_colour=(202, 183, 170)):
+        self.screen = screen
+        self.pos = pos
+        self.radius = radius
+        self.width = width
+        self.ring_colour = ring_colour
+    def draw(self, screen, end_angle):
+        arc_rect = pygame.Rect(0,0, self.radius*2, self.radius*2)
+        arc_rect.center = (360,310)
+        pygame.draw.arc(screen, self.ring_colour, arc_rect, 0, end_angle, self.width)
+
 def multiline(screen, lines, font, pos, colour=(0,0,0), x=0, y=0, w=2): 
     """
     Takes a list containing strings and creates a surface where all strings are blitted one below the other.
@@ -66,7 +79,6 @@ def checkClick(item, mouse_pos, event_list):
     for event in event_list:
         if event.type == pygame.MOUSEBUTTONDOWN and item.rect.collidepoint(mouse_pos):
             return True
-        
 
 def tooltip(screen, img, font, tooltip, colour=(148,133,123), x=0,y=0):
     rect = pygame.image.load(img).get_rect(center = (x,y))
@@ -75,6 +87,7 @@ def tooltip(screen, img, font, tooltip, colour=(148,133,123), x=0,y=0):
     if rect.collidepoint(pygame.mouse.get_pos()): 
         mouse_pos = pygame.mouse.get_pos()
         screen.blit(tooltip, (mouse_pos[0]+16, mouse_pos[1]))
+
 
 def dump(settings):
     with open('src/settings.json', "w") as json_file: 

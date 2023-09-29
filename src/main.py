@@ -2,9 +2,11 @@ import pygame
 import os
 import random
 import json
+import math
 import pygame_textinput
+import datetime
 from time import localtime, strftime
-from classes import Backdrop, Button, Interactive, Window
+from classes import Backdrop, Button, Interactive, Window, pomoTimer
 from classes import multiline, checkClick, tooltip, dump
 pygame.init()
 pygame.mixer.init()
@@ -27,11 +29,16 @@ title_font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 25)
 pygame.display.set_icon(pygame.image.load(r"src\img\favicon.png"))
 done = False              
 scene = 0
+counter = 1500
 clock = pygame.time.Clock()
 
 ##### EVENTS #####
 NEXT = pygame.USEREVENT + 1
-vinylWindow_open, calendar_open, todoTimer_open, firstPlay, play, placed = False, False, False, False, False, False
+TIMER = pygame.USEREVENT + 2 
+vinylWindow_open, calendar_open, todoTimer_open, firstPlay, play, placed, timer_running = False, False, False, False, False, False, False
+
+
+pygame.time.set_timer(TIMER, 1000)
 
 ##### OBJECTS #####
 # make playlist out of existing mp3 files
@@ -52,10 +59,10 @@ boundaries = [(0,12, "morning"), (12, 17, "afternoon"), (17, 20, "evening"), (20
 attributes["time_period"] = [boundary[2] for boundary in boundaries if boundary[0] <= int(attributes["time"][0]) < boundary[1]][0]
 
 textinput = pygame_textinput.TextInputVisualizer(font_object=font, font_color=(255,255,255), cursor_color=(255,255,255))
-
 ##### Main Program Loop #####
 while not done:
     ##### Events Loop #####
+    clock.tick(60)
     event_list = pygame.event.get()
     for event in event_list:
         if event.type == pygame.QUIT:
@@ -75,6 +82,7 @@ while not done:
             multiline(screen, [f"Good {attributes['time_period']}, {attributes['username']}.", f"It is {attributes['day_name']}, {attributes['month']} {attributes['day_date']}"], title_font, "center", x=520, y=180, w=20)
         if event.type == pygame.MOUSEBUTTONDOWN:
             scene = 1
+            
     
     elif scene == 1:
         backdrop = Backdrop(screen, "src/img/roomlinesSUNRISE.png")
@@ -140,23 +148,49 @@ while not done:
                     stickers.append({
                         "coords": [x,y], 
                         "desc": textinput.value,
-                        "shape": stickerChoice
+                        "shape": stickerChoice,
+                        "boxpos": [600, 227+40*(len(stickers))],
+                        "placed": False
                     })
                     matrixlabel = Interactive(screen, "", img="src/img/matrixlabel.png",x=159, y=451)
                     textinput = pygame_textinput.TextInputVisualizer(font_object=font, font_color=(255,255,255), cursor_color=(255,255,255))
                     placed = False
             for i in stickers:
                 tooltip(screen, "src/img/"+i["shape"]+".png", task_font, i["desc"], x=i["coords"][0], y=i["coords"][1])
-
             if checkClick(trashBin, pygame.mouse.get_pos(), event_list):
                 stickers = []
         elif todoTimer_open == True:
             todoTimerWindow = Window(screen, "https://todolist.com/pomodorotimer")
             todolayout = Interactive(screen, "", img="src/img/timermockup.png", x=130, y=130)
+            #pause = Button(screen, )
+            timer = pomoTimer(screen, counter)
+            timer.draw(screen, (counter/1500)*2*math.pi)
+            timer_text = title_font.render(str(datetime.timedelta(seconds=counter))[2:], True, (147, 133, 123))
+            screen.blit(timer_text, timer_text.get_rect(center = (360,450)))
+
+            #for i in stickers append to list then multiline the list'
+            if checkClick(todolayout, pygame.mouse.get_pos(), event_list):
+                if timer_running == False:
+                    timer_running = True
+                else:
+                    timer_running = False
+           
             if stickers:
-                multiline(screen, [i["desc"] if len(i["desc"]) < 19 else i["desc"][:16]+"..." for i in stickers[:6]], title_font, "topleft", colour=(202, 182, 169), x=625, y=230, w=20)
+                multiline(screen, [i["desc"] if len(i["desc"]) < 19 else i["desc"][:16]+"..." for i in stickers[:6]], title_font, "topleft", colour=(202, 182, 169), x=635, y=230, w=20)
+                for sticker in stickers:         
+                    checkbox_rect = Interactive(screen, "", img="src/img/checkboxes.png", x=sticker["boxpos"][0], y=sticker["boxpos"][1])
+                    if checkClick(checkbox_rect, pygame.mouse.get_pos(), event_list):
+                        sticker["placed"] = True
+                    if sticker["placed"] == True:
+                        screen.blit(pygame.image.load("src/img/cross.png"), pygame.image.load("src/img/cross.png").get_rect(topleft=sticker["boxpos"]))
             else: 
-                multiline(screen, ["No tasks! :)", "Try adding some using", "the Eisenhower matrix."], task_font, "topleft", colour=(202, 182, 169), x=625, y=230, w=10)
+                multiline(screen, ["No tasks! :)", "Try adding some using", "the Eisenhower matrix."], task_font, "topleft", colour=(202, 182, 169), x=615, y=230, w=10)
+        if timer_running == True:
+            for event in event_list:
+                if event.type == TIMER:
+                    counter -= 1
+                    if counter == 0:
+                        pygame.time.set_timer(TIMER, 0)                
         if checkClick(closeButton, pygame.mouse.get_pos(), event_list):
             calendar_open, vinylWindow_open, todoTimer_open = False, False, False
 
