@@ -7,15 +7,18 @@ import pygame_textinput
 import datetime
 from time import localtime, strftime
 from classes import Backdrop, Button, Interactive, Window, pomoTimer
-from classes import multiline, checkClick, tooltip, dump
+from classes import multiline, checkClick, tooltip, dump, notify
 pygame.init()
 pygame.mixer.init()
 
 ##### LOAD SETTINGS #####
 with open('src/settings.json') as json_file:
-    settings = json.load(json_file)
+    save = json.load(json_file)
     json_file.close()
-stickers = settings["stickers"]
+stickers = save["stickers"]
+settings = save["settings"]
+interval = save["settings"][0]["pomotimer"]
+counter = interval[0]
 ##### Screen Initialisation #####
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 576
@@ -29,14 +32,13 @@ title_font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 25)
 pygame.display.set_icon(pygame.image.load(r"src\img\favicon.png"))
 done = False              
 scene = 0
-counter = 1500
 clock = pygame.time.Clock()
 
 ##### EVENTS #####
 NEXT = pygame.USEREVENT + 1
 TIMER = pygame.USEREVENT + 2 
 vinylWindow_open, calendar_open, todoTimer_open, firstPlay, play, placed, timer_running = False, False, False, False, False, False, False
-
+study = True
 
 pygame.time.set_timer(TIMER, 1000)
 
@@ -57,8 +59,8 @@ attributes = {"username": os.getlogin(),
               }
 boundaries = [(0,12, "morning"), (12, 17, "afternoon"), (17, 20, "evening"), (20, 24, "night")] # these are the defined hour boundaries in 24 hour time for what constitutes  day, afternoon, evening or  night (imo)
 attributes["time_period"] = [boundary[2] for boundary in boundaries if boundary[0] <= int(attributes["time"][0]) < boundary[1]][0]
-
 textinput = pygame_textinput.TextInputVisualizer(font_object=font, font_color=(255,255,255), cursor_color=(255,255,255))
+
 ##### Main Program Loop #####
 while not done:
     ##### Events Loop #####
@@ -162,9 +164,11 @@ while not done:
         elif todoTimer_open == True:
             todoTimerWindow = Window(screen, "https://todolist.com/pomodorotimer")
             todolayout = Interactive(screen, "", img="src/img/timermockup.png", x=130, y=130)
-            #pause = Button(screen, )
-            timer = pomoTimer(screen, counter)
-            timer.draw(screen, (counter/1500)*2*math.pi)
+            timer = pomoTimer(screen)
+            if study == True:
+                timer.draw(screen, ((counter/interval[0])*2*math.pi)+math.pi/2)
+            else: 
+                timer.draw(screen, ((counter/interval[1])*2*math.pi)+math.pi/2)
             timer_text = title_font.render(str(datetime.timedelta(seconds=counter))[2:], True, (147, 133, 123))
             screen.blit(timer_text, timer_text.get_rect(center = (360,450)))
 
@@ -190,13 +194,22 @@ while not done:
                 if event.type == TIMER:
                     counter -= 1
                     if counter == 0:
-                        pygame.time.set_timer(TIMER, 0)                
+                        if study == True:
+                            study = False
+                            counter = interval[1]
+                            notify("BREAK", f"Take a break for the next {str(datetime.timedelta(seconds=interval[1]))[2:-3]} minutes. You've earned it!")
+                        else: 
+                            study = True
+                            counter = interval[0]
+                            notify("STUDY", f"It's time to study for the next {str(datetime.timedelta(seconds=interval[0]))[2:-3]} minutes. Keep up the good work!")
         if checkClick(closeButton, pygame.mouse.get_pos(), event_list):
             calendar_open, vinylWindow_open, todoTimer_open = False, False, False
 
     ##### Drawing code #####
     pygame.display.flip()
     clock.tick(60)
-dump({"stickers": stickers})
+dump({
+    "settings": settings,
+    "stickers": stickers})
 pygame.mixer.quit()
 pygame.quit()

@@ -2,6 +2,7 @@ import pygame
 pygame.init()
 import json
 import math
+from notifypy import Notify
 #general
 font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 30)
 smallfont = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
@@ -57,7 +58,7 @@ class pomoTimer():
     def draw(self, screen, end_angle):
         arc_rect = pygame.Rect(0,0, self.radius*2, self.radius*2)
         arc_rect.center = (360,310)
-        pygame.draw.arc(screen, self.ring_colour, arc_rect, 0, end_angle, self.width)
+        pygame.draw.arc(screen, self.ring_colour, arc_rect, math.pi/2, end_angle, self.width)
 
 def multiline(screen, lines, font, pos, colour=(0,0,0), x=0, y=0, w=2): 
     """
@@ -87,6 +88,15 @@ def tooltip(screen, img, font, tooltip, colour=(148,133,123), x=0,y=0):
     if rect.collidepoint(pygame.mouse.get_pos()): 
         mouse_pos = pygame.mouse.get_pos()
         screen.blit(tooltip, (mouse_pos[0]+16, mouse_pos[1]))
+######
+def notify(title, message):
+    notification = Notify(
+        default_notification_title=title,
+        default_notification_application_name="Chillist",
+        default_notification_icon="src/img/favicon.png",
+    )
+    notification.message = message
+    notification.send()
 
 
 def dump(settings):

@@ -1,3 +1,12 @@
 {
+    "settings": [
+        {
+            "pomotimer": [
+                15,
+                120
+            ],
+            "completed_tasks": 0
+        }
+    ],
     "stickers": []
 }
