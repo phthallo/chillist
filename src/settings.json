@@ -2,8 +2,8 @@
     "settings": [
         {
             "pomotimer": [
-                15,
-                120
+                1500,
+                300
             ],
             "completed_tasks": 0
         }

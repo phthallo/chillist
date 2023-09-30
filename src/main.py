@@ -61,6 +61,12 @@ boundaries = [(0,12, "morning"), (12, 17, "afternoon"), (17, 20, "evening"), (20
 attributes["time_period"] = [boundary[2] for boundary in boundaries if boundary[0] <= int(attributes["time"][0]) < boundary[1]][0]
 textinput = pygame_textinput.TextInputVisualizer(font_object=font, font_color=(255,255,255), cursor_color=(255,255,255))
 
+##### FUNCTIONS FOR THIS FILE ONLY #####
+def nextsong():
+    currentlyplaying = random.choice(playlist)
+    pygame.mixer.music.load(currentlyplaying[0])
+    pygame.mixer.music.play()
+
 ##### Main Program Loop #####
 while not done:
     ##### Events Loop #####
@@ -74,6 +80,8 @@ while not done:
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             print(x,y)
+        if event.type == NEXT:
+            nextsong()
         keys = pygame.key.get_pressed()
     if scene == 0: 
         if attributes["time_period"] == "afternoon" or attributes["time_period"] == "evening":
@@ -117,11 +125,7 @@ while not done:
                     play = True
                 else:
                     pygame.mixer.music.pause()
-                    play = False
-            if event.type == NEXT:
-                currentlyplaying = random.choice(playlist)
-                pygame.mixer.music.load(currentlyplaying[0])
-                pygame.mixer.music.play()
+                    play = False   
             if play == False:
                 control = Button(screen,"src/img/play.png", x=405, y=190)
             else:
@@ -161,10 +165,15 @@ while not done:
                 tooltip(screen, "src/img/"+i["shape"]+".png", task_font, i["desc"], x=i["coords"][0], y=i["coords"][1])
             if checkClick(trashBin, pygame.mouse.get_pos(), event_list):
                 stickers = []
+
         elif todoTimer_open == True:
             todoTimerWindow = Window(screen, "https://todolist.com/pomodorotimer")
             todolayout = Interactive(screen, "", img="src/img/timermockup.png", x=130, y=130)
+            control = Button(screen, "src/img/play_xs.png", x=284, y=431)
+            restart = Button(screen, "src/img/restart.png", x=401, y=431)
+            pygame.draw.circle(screen,(255, 251, 226),(360,310), 110)
             timer = pomoTimer(screen)
+
             if study == True:
                 timer.draw(screen, ((counter/interval[0])*2*math.pi)+math.pi/2)
             else: 
@@ -172,24 +181,35 @@ while not done:
             timer_text = title_font.render(str(datetime.timedelta(seconds=counter))[2:], True, (147, 133, 123))
             screen.blit(timer_text, timer_text.get_rect(center = (360,450)))
 
-            #for i in stickers append to list then multiline the list'
-            if checkClick(todolayout, pygame.mouse.get_pos(), event_list):
+            if checkClick(control, pygame.mouse.get_pos(), event_list):
                 if timer_running == False:
                     timer_running = True
                 else:
                     timer_running = False
-           
+
+            if timer_running == True:
+                control = Button(screen, "src/img/pause_xs.png", x=284, y=431)
+            else:
+                control = Button(screen, "src/img/play_xs.png", x=284, y=431)
             if stickers:
                 multiline(screen, [i["desc"] if len(i["desc"]) < 19 else i["desc"][:16]+"..." for i in stickers[:6]], title_font, "topleft", colour=(202, 182, 169), x=635, y=230, w=20)
-                for sticker in stickers:         
-                    checkbox_rect = Interactive(screen, "", img="src/img/checkboxes.png", x=sticker["boxpos"][0], y=sticker["boxpos"][1])
-                    if checkClick(checkbox_rect, pygame.mouse.get_pos(), event_list):
-                        sticker["placed"] = True
-                    if sticker["placed"] == True:
-                        screen.blit(pygame.image.load("src/img/cross.png"), pygame.image.load("src/img/cross.png").get_rect(topleft=sticker["boxpos"]))
+                for sticker in stickers:
+                    if stickers.index(sticker) <= 5:         
+                        checkbox_rect = Interactive(screen, "", img="src/img/checkboxes.png", x=sticker["boxpos"][0], y=227+40*(stickers.index(sticker)))
+                        if checkClick(checkbox_rect, pygame.mouse.get_pos(), event_list):
+                            sticker["placed"] = True
+                        if sticker["placed"] == True:
+                            settings[0]["completed_tasks"] += 1
+                            screen.blit(pygame.image.load("src/img/cross.png"), pygame.image.load("src/img/cross.png").get_rect(topleft=(sticker["boxpos"][0], 227+40*(stickers.index(sticker)))))
+                            del stickers[stickers.index(sticker)]
             else: 
                 multiline(screen, ["No tasks! :)", "Try adding some using", "the Eisenhower matrix."], task_font, "topleft", colour=(202, 182, 169), x=615, y=230, w=10)
         if timer_running == True:
+            if checkClick(restart, pygame.mouse.get_pos(), event_list):
+                if study == True:
+                    counter = interval[0]
+                else: 
+                    counter = interval[1]
             for event in event_list:
                 if event.type == TIMER:
                     counter -= 1

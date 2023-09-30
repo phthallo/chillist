@@ -49,9 +49,8 @@ class Window():
         screen.blit(self.title, (158, 95))
 
 class pomoTimer():
-    def __init__(self, screen, pos=(100,100), radius = 110, width = 75, ring_colour=(202, 183, 170)):
+    def __init__(self, screen, radius = 110, width = 75, ring_colour=(202, 183, 170)):
         self.screen = screen
-        self.pos = pos
         self.radius = radius
         self.width = width
         self.ring_colour = ring_colour
@@ -97,7 +96,6 @@ def notify(title, message):
     )
     notification.message = message
     notification.send()
-
 
 def dump(settings):
     with open('src/settings.json', "w") as json_file: 
