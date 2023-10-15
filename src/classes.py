@@ -97,8 +97,8 @@ def notify(title, message):
     notification.message = message
     notification.send()
 
-def dump(settings):
-    with open('src/settings.json', "w") as json_file: 
+def dump(settings, file):
+    with open(file, "w") as json_file: 
         json.dump(
             settings, json_file, indent=4)
         json_file.close()

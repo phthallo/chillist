@@ -5,20 +5,13 @@ import json
 import math
 import pygame_textinput
 import datetime
+import shutil
 from time import localtime, strftime
 from classes import Backdrop, Button, Interactive, Window, pomoTimer
 from classes import multiline, checkClick, tooltip, dump, notify
 pygame.init()
 pygame.mixer.init()
 
-##### LOAD SETTINGS #####
-with open('src/settings.json') as json_file:
-    save = json.load(json_file)
-    json_file.close()
-stickers = save["stickers"]
-settings = save["settings"]
-interval = save["settings"][0]["pomotimer"]
-counter = interval[0]
 ##### Screen Initialisation #####
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 576
@@ -42,14 +35,51 @@ study = True
 
 pygame.time.set_timer(TIMER, 1000)
 
+
 ##### OBJECTS #####
 # make playlist out of existing mp3 files
+default_dir = f"C:/Users/{os.getlogin()}/Documents/Chillist"
+if not os.path.exists(default_dir):
+    os.makedirs(default_dir)
+if not os.path.exists(default_dir + "/mus"):
+    os.makedirs(default_dir + "/mus")
+if os.listdir(default_dir +"/mus") == []:
+    for filename in os.listdir(os.getcwd()+"\\src\\mus"):
+        file = os.path.join(os.getcwd()+"\\src\\mus", filename)
+        if file.lower().endswith(('.mp3', '.wav', '.ogg')):
+            shutil.copyfile(file, default_dir + "/mus/" + filename)
+if not os.path.exists(default_dir + "/settings.json"):
+    dump({
+    "settings": [
+        {
+            "pomotimer": [
+                1500,
+                300
+            ],
+            "completed_tasks": 0
+        }
+    ],
+    "stickers": []
+}, default_dir + "/settings.json")
+
+
 playlist = []
-for filename in os.listdir(os.getcwd()+"\\src\\mus"):
-    file = os.path.join(os.getcwd()+"\\src\\mus", filename)
+for filename in os.listdir(default_dir +"/mus"):
+    file = os.path.join(default_dir + "/mus/", filename)
     # checking if it is a file and that it's a music file
     if file.lower().endswith(('.mp3', '.wav', '.ogg')):
         playlist.append((file, filename))
+
+##### LOAD SETTINGS #####
+with open(default_dir + "/settings.json") as json_file:
+    save = json.load(json_file)
+    json_file.close()
+stickers = save["stickers"]
+settings = save["settings"]
+interval = save["settings"][0]["pomotimer"]
+counter = interval[0]
+
+    
 # collate date and time using os
 attributes = {"username": os.getlogin(),
               "month": strftime("%B", localtime()),
@@ -79,7 +109,6 @@ while not done:
         # This code retrieves coordinates of mouse clicks, which I need to test the colliders.
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
-            print(x,y)
         if event.type == NEXT:
             nextsong()
         keys = pygame.key.get_pressed()
@@ -230,6 +259,6 @@ while not done:
     clock.tick(60)
 dump({
     "settings": settings,
-    "stickers": stickers})
+    "stickers": stickers}, default_dir + "/settings.json")
 pygame.mixer.quit()
 pygame.quit()
