@@ -2,10 +2,22 @@ import pygame
 pygame.init()
 import json
 import math
+import sys
+import os
 from notifypy import Notify
 #general
-font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 30)
-smallfont = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+font = pygame.font.Font(resource_path("sysfont\sysfont\sysfont.ttf"), 30)
+smallfont = pygame.font.Font(resource_path("sysfont\sysfont\sysfont.ttf"), 15)
 class Backdrop():
     def __init__(self, screen, img, x=0, y=0, ):
         """
@@ -43,9 +55,8 @@ class Interactive():
 class Window():
     def __init__(self, screen, title, size="large", x=128, y=72):
         if size == "large":
-            screen.blit(pygame.image.load("src/img/window.png"), (x,y))
-            font = pygame.font.Font("src\sysfont\sysfont\sysfont.ttf", 15)
-        self.title = font.render(title, False, (255, 255, 255))
+            screen.blit(pygame.image.load(resource_path("img/window.png")), (x,y))
+        self.title = smallfont.render(title, False, (255, 255, 255))
         screen.blit(self.title, (158, 95))
 
 class pomoTimer():
@@ -92,7 +103,7 @@ def notify(title, message):
     notification = Notify(
         default_notification_title=title,
         default_notification_application_name="Chillist",
-        default_notification_icon="src/img/favicon.png",
+        default_notification_icon=resource_path("img/favicon.png"),
     )
     notification.message = message
     notification.send()
