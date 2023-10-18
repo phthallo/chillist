@@ -1,6 +1,8 @@
 # chillist
 [work in progress-ish] An aesthetic productivity app for students who struggle with time management and motivation. AIF final project/output of learning.
 
+Inspired by [StudyTogether](https://www.studytogether.com) and [Virtual Cottage](https://steamcommunity.com/app/1369320).
+
 If you're here I'm assuming you're from the SACE board here to check that this is actually real. If so, look no further! There are installation instructions below and feature GIFs underneath that.
 
 ## Installation Instructions
@@ -26,7 +28,7 @@ Settings are stored under `settings.json`, and music files (*.mp3, *.ogg, *.wav)
 
 #### Music Player
 - Minimalistic music player preloaded with a selection of lo-fi tracks (see ## Credits)
-- Songs can be substutited with the user's choice of audio files (with a supported file format, though), and are played randomly.
+- Songs can be substutited with the user's choice of audio files (with a supported file format, though), and are played in shuffle.
 
 ![musicplayer](https://github.com/phthallo/chillist/assets/84078890/f8ca92e5-07a4-4316-824d-d280b7c8484e)
 
