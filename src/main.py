@@ -93,9 +93,10 @@ textinput = pygame_textinput.TextInputVisualizer(font_object=font, font_color=(2
 
 ##### FUNCTIONS FOR THIS FILE ONLY #####
 def nextsong():
-    currentlyplaying = random.choice(playlist)
-    pygame.mixer.music.load(currentlyplaying[0])
+    song = random.choice(playlist)
+    pygame.mixer.music.load(song[0])
     pygame.mixer.music.play()
+    return song[1]
 
 ##### Main Program Loop #####
 while not done:
@@ -110,7 +111,10 @@ while not done:
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
         if event.type == NEXT:
-            nextsong()
+            currentlyplaying = nextsong()
+        if event.type == pygame.KEYDOWN: 
+            if event.key == pygame.K_SPACE and vinylWindow_open == True: 
+                currentlyplaying = nextsong()
         keys = pygame.key.get_pressed()
     if scene == 0: 
         if attributes["time_period"] == "afternoon" or attributes["time_period"] == "evening":
@@ -144,9 +148,7 @@ while not done:
                 pygame.mixer.music.set_endevent(NEXT)
                 if not pygame.mixer.music.get_busy() and firstPlay == False:
                     control = Button(screen,"src/img/play.png", x=405, y=190)
-                    currentlyplaying = random.choice(playlist)
-                    pygame.mixer.music.load(currentlyplaying[0])
-                    pygame.mixer.music.play()
+                    currentlyplaying = nextsong()
                     clock.tick(10)
                     firstPlay, play = True, True
                 elif not pygame.mixer.music.get_busy():
@@ -159,7 +161,7 @@ while not done:
                 control = Button(screen,"src/img/play.png", x=405, y=190)
             else:
                 control = Button(screen,"src/img/pause.png", x=405, y=190)
-                currentlyplaying_text = font.render(f"Now playing: {currentlyplaying[1][:-4]}", False, (147, 133, 123), (251, 238, 208))
+                currentlyplaying_text = font.render(f"Now playing: {currentlyplaying[:-4]}", False, (147, 133, 123), (251, 238, 208))
                 currentlyplayins_rect = currentlyplaying_text.get_rect(center=(520, 460)) #what this does is set the centre of the "now playing" text to the actual centre of the popup window
                 screen.blit(currentlyplaying_text, currentlyplayins_rect) # meaning that no matter how long the text is, it'll always be aligned to the centre.   
 
